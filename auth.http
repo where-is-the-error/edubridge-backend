@@ -1,0 +1,16 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+
+### 회원가입 테스트 (Signup)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "22@22.22",
+  "password": "22",
+  "nickname": "2번째 테스트 회원가입",
+  "gradeLevel": "초5"
+}
