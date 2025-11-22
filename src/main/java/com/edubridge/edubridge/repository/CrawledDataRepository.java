@@ -1,10 +1,10 @@
-// src/main/java/com/edubridge/edubridge/repository/CrawledDataRepository.java
 package com.edubridge.edubridge.repository;
 
 import com.edubridge.edubridge.model.CrawledData;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+// import org.springframework.data.jpa.repository.JpaRepository; // <-- JPA를 썼다면 삭제
 
-@Repository
+// JpaRepository(또는 CrudRepository) 대신 MongoRepository를 상속합니다.
 public interface CrawledDataRepository extends MongoRepository<CrawledData, String> {
+    // MongoRepository<모델 클래스, ID 타입>
 }

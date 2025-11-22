@@ -18,7 +18,7 @@ public class CrawlerController {
     public String startCrawling() {
         try {
             // TODO: 실제 타겟 URL과 CSS Selector를 입력하세요.
-            String url = "https://www.example.com";
+            String url = "https://eclass.dongyang.ac.kr/";
             String selector = ".main-list .item";
 
             // Service 계층의 크롤링 로직 호출
