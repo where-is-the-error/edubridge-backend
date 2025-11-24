@@ -1,5 +1,3 @@
-// src/main/java/com/edubridge/edubridge/model/User.java
-
 package com.edubridge.edubridge.model;
 
 import lombok.Data;
@@ -9,23 +7,31 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Data // Lombok: Getter, Setter, toString 등을 자동 생성
-@Document(collection = "users") // 이 클래스가 MongoDB의 'users' 컬렉션과 매핑됨을 의미
+@Data
+@Document(collection = "users")
 public class User {
 
-    @Id // MongoDB의 ObjectId에 매핑
+    @Id
     private String id;
 
-    @Indexed(unique = true) // 이메일은 중복 불가능
+    @Indexed(unique = true)
     private String email;
 
-    private String password; // 암호화된 비밀번호
+    private String password;
     private String nickname;
-    private String gradeLevel; // grade_level (초1, 초2 등)
-    private String role = "student"; // 기본값 설정
-    private String characterName = "코니"; // 기본값 설정
-    private int progressPoints = 0; // 기본값 설정
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일자
 
-    // gradeLevel, role 등에 대한 ENUM 검증은 서비스 로직에서 처리합니다.
+    // 🌟 1. 기존 필드 유지: 연령 그룹 (elementary, middle, high)
+    private String gradeLevel;
+
+    // 🌟 2. 추가된 구조화된 필드
+    private Integer gradeNumber;    // 학년 번호 (예: 1, 2, 3)
+    private String track;           // 계열 (예: "society", "science")
+    private String subjectPrimary;  // 주 선택 과목 (예: "math", "korea")
+    private String subjectDetail;   // 세부 과목 (예: "integrated")
+
+    // ... (기존 필드 유지)
+    private String role = "student";
+    private String characterName = "코니";
+    private int progressPoints = 0;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

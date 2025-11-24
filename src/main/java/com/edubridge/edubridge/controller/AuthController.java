@@ -25,6 +25,7 @@ class AuthResponse {
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     private final AuthService authService;
@@ -45,6 +46,7 @@ public class AuthController {
     // POST /api/auth/signin 요청 처리 (로그인)
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        System.out.println("--- Login Attempt: " + request.getEmail() + " ---");
         try {
             // Service 계층에서 인증 및 토큰 생성
             String token = authService.authenticate(request.getEmail(), request.getPassword());
@@ -55,6 +57,7 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
+            e.printStackTrace();
             // 인증 실패 시 401 Unauthorized 반환 (이메일 없음, 비밀번호 불일치 등)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
