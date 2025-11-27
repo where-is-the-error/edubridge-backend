@@ -11,7 +11,7 @@ public class CrawledData {
 
     private String title;
     private String detailUrl;
-
+    private String imageUrl;
     // Getter, Setter, Constructors (생략)
     // ...
 
@@ -37,5 +37,14 @@ public class CrawledData {
 
     public void setDetailUrl(String detailUrl) {
         this.detailUrl = detailUrl;
+    }
+
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

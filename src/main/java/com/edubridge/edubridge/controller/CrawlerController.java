@@ -18,9 +18,8 @@ public class CrawlerController {
     public String startCrawling() {
         try {
             // TODO: 실제 타겟 URL과 CSS Selector를 입력하세요.
-            String url = "https://eclass.dongyang.ac.kr/";
-            String selector = ".main-list .item";
-
+            String url = "https://www.data.go.kr/tcs/dss/selectDataSetList.do?dType=TOTAL&keyword=&detailKeyword=&publicDataPk=&recmSe=N&detailText=&relatedKeyword=&commaNotInData=&commaAndData=&commaOrData=&must_not=&tabId=&dataSetCoreTf=&coreDataNm=&sort=&relRadio=&orgFullName=&orgFilter=&org=&orgSearch=&currentPage=1&perPage=10&brm=&instt=&svcType=&kwrdArray=&extsn=&coreDataNmArray=&operator=AND&pblonsipScopeCode=/";
+            String selector = "#fileDataList > div.result-list > ul > li";
             // Service 계층의 크롤링 로직 호출
             int count = crawlerService.crawlAndSave(url, selector);
             return "크롤링 완료! 총 " + count + "개의 데이터가 MongoDB에 저장되었습니다.";
