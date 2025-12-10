@@ -1,50 +1,27 @@
+// edubridge-backend/src/main/java/com/edubridge/edubridge/model/CrawledData.java
+
 package com.edubridge.edubridge.model;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.List;
 
-@Document(collection = "crawled_data") // MongoDB 컬렉션 이름을 지정합니다.
+@Data
+@Document(collection = "crawled_data")
 public class CrawledData {
 
-    @Id // 이 필드가 MongoDB의 고유 ID (_id)가 됩니다.
-    private String id; // MongoDB의 ID는 String이나 ObjectId 타입이 일반적입니다.
+    @Id
+    private String id;
 
-    private String title;
-    private String detailUrl;
-    private String imageUrl;
-    // Getter, Setter, Constructors (생략)
-    // ...
+    private String title;           // 영상 제목
+    private String detailUrl;       // 영상 링크
+    private String imageUrl;        // 썸네일 이미지
 
-    public String getId() {
-        return id;
-    }
+    // --- 추가된 필드 ---
+    private String description;     // 영상 설명
+    private List<String> comments;  // 수집된 댓글 리스트 (여론 분석용)
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDetailUrl() {
-        return detailUrl;
-    }
-
-    public void setDetailUrl(String detailUrl) {
-        this.detailUrl = detailUrl;
-    }
-
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+    private Double aiRating;        // AI가 매긴 점수 (1.0 ~ 5.0)
+    private String aiComment;       // AI 한줄평
 }
