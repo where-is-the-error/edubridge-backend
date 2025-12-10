@@ -21,6 +21,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.edubridge.edubridge.model.User; // User import 확인
+
 @Service
 @RequiredArgsConstructor
 public class CrawlerService {
@@ -28,71 +30,73 @@ public class CrawlerService {
     private final CrawledDataRepository crawledDataRepository;
     private final GeminiService geminiService;
 
-    public int crawlYoutube(String keyword) {
-        // 1. 크롬 드라이버 자동 설정
+    // ⭐️ 파라미터에 User 추가
+    public int crawlYoutube(String keyword, User user) {
         WebDriverManager.chromedriver().setup();
-
-        // 2. 브라우저 옵션 설정
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // 브라우저 창 숨기기 (디버깅 시 주석 처리)
+        options.addArguments("--headless");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--remote-allow-origins=*");
-        // 유튜브는 봇 탐지를 피하기 위해 User-Agent 설정 필수
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         int savedCount = 0;
 
         try {
-            // 3. 검색 결과 페이지 이동
             String searchUrl = "https://www.youtube.com/results?search_query=" + keyword;
             System.out.println("Crawling URL: " + searchUrl);
             driver.get(searchUrl);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            // 영상 리스트가 로딩될 때까지 대기
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("ytd-video-renderer")));
 
-            // 4. 영상 링크 수집 (상위 7개)
             List<WebElement> videoElements = driver.findElements(By.cssSelector("ytd-video-renderer"));
             List<String> videoLinks = new ArrayList<>();
 
-            for (int i = 0; i < Math.min(videoElements.size(), 7); i++) {
+            for (int i = 0; i < Math.min(videoElements.size(), 5); i++) { // 테스트를 위해 5개로 줄임
                 try {
                     WebElement titleEl = videoElements.get(i).findElement(By.id("video-title"));
                     String link = titleEl.getAttribute("href");
-
-                    // ⭐️ [수정됨] 링크가 존재하고, 'shorts'가 포함되지 않은 경우에만 추가
                     if (link != null && !link.contains("shorts")) {
                         videoLinks.add(link);
                     }
-
-                } catch (Exception e) {
-                    continue;
-                }
+                } catch (Exception e) { continue; }
             }
 
-            // 5. 각 영상 상세 크롤링 & 분석
+            // 5. 각 영상 상세 크롤링 & 분석 (수정된 부분)
             for (String link : videoLinks) {
                 try {
+                    // ⭐️ [추가된 로직] DB에 이미 존재하는 영상인지 확인
+                    if (crawledDataRepository.existsByDetailUrl(link)) {
+                        System.out.println("이미 존재하는 영상입니다. 건너뜁니다: " + link);
+                        continue; // 아래 로직(상세 크롤링, AI 분석, 저장) 모두 스킵하고 다음 영상으로 넘어감
+                    }
+
+                    // --- 여기서부터는 새로운 영상일 때만 실행됨 ---
                     CrawledData data = processSingleVideo(driver, link);
+
                     if (data != null) {
+                        System.out.println("AI 분석 대기 중... (4초)");
+                        Thread.sleep(4000);
 
-                        // ⭐️ [수정] 임시 사용자 객체 생성 또는 DB 조회 (실제로는 로그인된 사용자 정보를 써야 함)
-                        User dummyUser = new User();
-                        dummyUser.setNickname("학생");
-                        dummyUser.setGradeLevel("중학교");
-                        dummyUser.setGradeNumber(2);
-                        dummyUser.setSubjectPrimary("수학");
+                        // AI 분석
+                        CrawledData analyzedData = geminiService.analyzeYoutubeVideo(data, user);
 
-                        // AI 분석 수행 (user 객체 전달)
-                        CrawledData analyzedData = geminiService.analyzeYoutubeVideo(data, dummyUser);
+                        // AI 점수가 0이면 저장하지 않음 (선택사항: 필요하면 주석 해제)
+                        /*
+                        if (analyzedData.getAiRating() == 0) {
+                            System.out.println("AI 분석 실패로 저장하지 않습니다.");
+                            continue;
+                        }
+                        */
 
-                        // DB 저장
                         crawledDataRepository.save(analyzedData);
                         savedCount++;
-                        System.out.println("Saved & Analyzed: " + data.getTitle());
+
+                        System.out.println("--------------------------------------------------");
+                        System.out.println("Saved New Video: " + analyzedData.getTitle());
+                        System.out.println("--------------------------------------------------");
                     }
                 } catch (Exception e) {
                     System.err.println("Failed to process video: " + link + " / Error: " + e.getMessage());
@@ -102,7 +106,7 @@ public class CrawlerService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            driver.quit(); // 브라우저 종료
+            driver.quit();
         }
 
         return savedCount;
