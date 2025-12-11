@@ -24,6 +24,10 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         // 🌟 업데이트 로직: DTO에서 값이 있는 경우에만 User 모델 필드를 업데이트합니다.
+        // ⭐️ [추가] 닉네임 업데이트 로직
+        if (updateDto.getNickname() != null && !updateDto.getNickname().isEmpty()) {
+            user.setNickname(updateDto.getNickname());
+        }
 
         // 1. 학제/학년 정보 업데이트
         if (updateDto.getGradeLevel() != null) {

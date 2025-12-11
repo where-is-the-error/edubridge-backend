@@ -27,7 +27,7 @@ public class AiService {
 
         // 문맥 생성
         StringBuilder systemPrompt = new StringBuilder();
-        systemPrompt.append("당신은 친절한 학교 선생님입니다. ");
+        systemPrompt.append("당신은 친절한 과외 선생님입니다. ");
         systemPrompt.append("대상 학생은 " + grade + " " + gradeNum + "학년이며, ");
         systemPrompt.append("관심 과목은 " + subject + "입니다. ");
         systemPrompt.append("학생의 수준에 딱 맞춰서 답변해주세요.");

@@ -54,7 +54,7 @@ public class CrawlerService {
             List<WebElement> videoElements = driver.findElements(By.cssSelector("ytd-video-renderer"));
             List<String> videoLinks = new ArrayList<>();
 
-            for (int i = 0; i < Math.min(videoElements.size(), 5); i++) { // 테스트를 위해 5개로 줄임
+            for (int i = 0; i < Math.min(videoElements.size(), 30); i++) { // 테스트를 위해 5개로 줄임
                 try {
                     WebElement titleEl = videoElements.get(i).findElement(By.id("video-title"));
                     String link = titleEl.getAttribute("href");

@@ -1,7 +1,7 @@
 package com.edubridge.edubridge.controller;
 
 import com.edubridge.edubridge.dto.AiRequestDto;
-import com.edubridge.edubridge.service.GeminiService; // 👈 변경됨
+import com.edubridge.edubridge.service.GeminiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,18 +10,25 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class AiController {
 
-    private final GeminiService geminiService; // 👈 AiService 대신 사용
-
-    @PostMapping("/generate")
-    public ResponseEntity<String> generateProblem(@RequestBody AiRequestDto requestDto,
-                                                  Authentication authentication) {
+    private final GeminiService geminiService;
+    @GetMapping("/memo-summary")
+    public ResponseEntity<String> getMemoSummary(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+        String userId = authentication.getName();
+        String summary = geminiService.summarizeMemosForTimetable(userId);
+        return ResponseEntity.ok(summary);
+    }
+    @PostMapping("/chat") // 엔드포인트 이름 변경 권장
+    public ResponseEntity<String> chat(@RequestBody AiRequestDto requestDto,
+                                       Authentication authentication) {
         String userId = authentication.getName();
 
-        // GeminiService 호출
-        String response = geminiService.generateProblem(userId, requestDto.getUserPrompt());
+        // chatWithAi 메서드 호출 (DB 저장 및 히스토리 반영됨)
+        String response = geminiService.chatWithAi(userId, requestDto.getUserPrompt());
 
         return ResponseEntity.ok(response);
     }
